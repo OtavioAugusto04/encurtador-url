@@ -80,6 +80,11 @@
   outline-offset: 2px;
 }
 
+.submit-button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
 @media (max-width: 480px) {
   .card {
     padding: 28px 20px;

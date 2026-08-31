@@ -6,13 +6,17 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
 function App() {
   const [url, setUrl] = useState('')
   const [shortUrl, setShortUrl] = useState('')
+  const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
 
   async function handleShorten() {
     if (!url || loading) return
 
     setLoading(true)
     setShortUrl('')
+    setError('')
+    setCopied(false)
 
     try {
       const response = await fetch(`${API_URL}/api/shorten`, {
@@ -24,16 +28,22 @@ function App() {
       const data = await response.json()
 
       if (!response.ok) {
-        setShortUrl(data.error || 'Erro ao encurtar')
+        setError(data.error || 'Erro ao encurtar')
         return
       }
 
       setShortUrl(data.shortUrl)
     } catch {
-      setShortUrl('Não foi possível conectar ao servidor')
+      setError('Não foi possível conectar ao servidor')
     } finally {
       setLoading(false)
     }
+  }
+
+  async function handleCopy() {
+    await navigator.clipboard.writeText(shortUrl)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -50,7 +60,7 @@ function App() {
           type="text"
           className="field field-output"
           placeholder="URL encurtada"
-          value={shortUrl}
+          value={error || shortUrl}
           readOnly
         />
         <button
@@ -61,6 +71,11 @@ function App() {
         >
           {loading ? 'Encurtando...' : 'Encurtar'}
         </button>
+        {shortUrl && (
+          <button type="button" className="copy-button" onClick={handleCopy}>
+            {copied ? 'Copiado!' : 'Copiar'}
+          </button>
+        )}
       </div>
     </main>
   )

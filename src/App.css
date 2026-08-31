@@ -85,6 +85,31 @@
   cursor: default;
 }
 
+.copy-button {
+  height: 44px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.copy-button:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.copy-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
 @media (max-width: 480px) {
   .card {
     padding: 28px 20px;

@@ -5,8 +5,7 @@ import 'dotenv/config'
 import { pool } from './db.js'
 
 const app = express()
-const PORT = process.env.PORT || 3001
-const APP_BASE_URL = process.env.APP_BASE_URL || `http://localhost:${PORT}`
+const PORT = process.env.PORT || 3000
 
 app.use(cors())
 app.use(express.json())
@@ -20,7 +19,7 @@ function isValidUrl(value) {
   }
 }
 
-app.post('/api/shorten', async (req, res) => {
+app.post('/api/urls', async (req, res) => {
   const { url } = req.body
 
   if (!url || !isValidUrl(url)) {
@@ -33,7 +32,7 @@ app.post('/api/shorten', async (req, res) => {
   )
 
   if (existing.length > 0) {
-    return res.json({ shortUrl: `${APP_BASE_URL}/${existing[0].short_code}` })
+    return res.json({ shortCode: existing[0].short_code })
   }
 
   let shortCode
@@ -52,7 +51,7 @@ app.post('/api/shorten', async (req, res) => {
     }
   }
 
-  res.status(201).json({ shortUrl: `${APP_BASE_URL}/${shortCode}` })
+  res.status(201).json({ shortCode })
 })
 
 app.get('/api/urls', async (req, res) => {

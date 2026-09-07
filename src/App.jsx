@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import './App.css'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000'
 
 function App() {
   const [url, setUrl] = useState('')
@@ -19,7 +19,7 @@ function App() {
     setCopied(false)
 
     try {
-      const response = await fetch(`${API_URL}/api/shorten`, {
+      const response = await fetch(`${API_URL}/api/urls`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ url }),
@@ -32,7 +32,7 @@ function App() {
         return
       }
 
-      setShortUrl(data.shortUrl)
+      setShortUrl(`${API_URL}/${data.shortCode}`)
     } catch {
       setError('Não foi possível conectar ao servidor')
     } finally {

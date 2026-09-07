@@ -31,7 +31,7 @@ Projeto de encurtador de URLs com frontend em Vite + React (JavaScript) e backen
    npm start
    ```
 
-   O backend sobe em `http://localhost:3001`.
+   O backend sobe em `http://localhost:3000`.
 
 ## Frontend
 

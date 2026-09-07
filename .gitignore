@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .env
+.vagrant
 
 # Editor directories and files
 .vscode/*

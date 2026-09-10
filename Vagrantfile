@@ -244,6 +244,14 @@ Vagrant.configure("2") do |config|
 			source: "Vagrant/backend/99-installer-config.yaml",
 			destination: "/tmp/99-installer-config.yaml"
 
+		client02.vm.provision "file",
+			source: "Vagrant/backend/env.backend",
+			destination: "/tmp/env.backend"
+
+		client02.vm.provision "file",
+			source: "Vagrant/backend/encurtador-api.service",
+			destination: "/tmp/encurtador-api.service"
+
 		client02.vm.provision "shell", inline: <<-SHELL
 			set -e
 			export DEBIAN_FRONTEND=noninteractive
@@ -256,6 +264,71 @@ Vagrant.configure("2") do |config|
 			chmod 600 /etc/netplan/99-installer-config.yaml
 
 			netplan apply
+
+			# =====================================================
+			# Node.js 22 - runtime da API
+			# =====================================================
+			curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+			apt-get -y install nodejs
+
+			node --version
+			npm --version
+
+			# Confirma o caminho do binário usado no ExecStart da unit
+			echo "Binário do node: $(command -v node) (a unit usa /usr/bin/node)"
+
+			# =====================================================
+			# DEPLOY DA API
+			# =====================================================
+
+			# Para o serviço antes de mexer nos arquivos, para o
+			# Restart=always não entrar em laço durante o npm ci.
+			# O || true cobre a primeira execução, quando a unit
+			# ainda não existe.
+			systemctl stop encurtador-api || true
+
+			# Copia o código para dentro da VM. Nunca rodamos npm ci
+			# dentro de /vagrant: a pasta compartilhada é lenta e
+			# quebra com os symlinks criados pelo npm no Windows.
+			rm -rf /opt/encurtador-api
+			mkdir -p /opt/encurtador-api
+
+			cp /vagrant/server/package.json /opt/encurtador-api/
+			cp /vagrant/server/package-lock.json /opt/encurtador-api/
+			cp /vagrant/server/index.js /opt/encurtador-api/
+			cp /vagrant/server/db.js /opt/encurtador-api/
+
+			cd /opt/encurtador-api
+
+			# Instala apenas as dependências de produção
+			npm ci --omit=dev
+
+			# =====================================================
+			# CONFIGURAÇÃO E SERVIÇO
+			# =====================================================
+
+			# Aponta a API para o MySQL da VM database (10.20.30.3)
+			install -m 640 /tmp/env.backend /opt/encurtador-api/.env
+
+			# Instala a unit do systemd
+			install -m 644 /tmp/encurtador-api.service /etc/systemd/system/encurtador-api.service
+
+			systemctl daemon-reload
+			systemctl enable --now encurtador-api
+
+			# Garante que um novo provision suba o código atualizado
+			systemctl restart encurtador-api
+
+			# =====================================================
+			# VALIDAÇÃO
+			# =====================================================
+
+			# Dá tempo do Express subir antes de consultar
+			sleep 5
+
+			systemctl status encurtador-api --no-pager || true
+			curl -s http://localhost:3000/api/urls || true
+			echo
 		SHELL
 	end
 end

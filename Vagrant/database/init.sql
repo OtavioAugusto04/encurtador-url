@@ -1,0 +1,3 @@
+CREATE USER IF NOT EXISTS 'encurtador'@'10.20.30.2' IDENTIFIED BY 'encurtador123';
+GRANT ALL PRIVILEGES ON encurtador_url.* TO 'encurtador'@'10.20.30.2';
+FLUSH PRIVILEGES;

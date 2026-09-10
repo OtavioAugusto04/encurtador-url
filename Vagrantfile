@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
 			vb.name = "frontend"
 			end
 
-		client.vm.provision "file", source: "frontend/99-installer-config.yaml", destination: "/tmp/99-installer-config.yaml"
+		client.vm.provision "file", source: "Vagrant/frontend/99-installer-config.yaml", destination: "/tmp/99-installer-config.yaml"
 
 		client.vm.provision "shell", inline: <<-SHELL
 			sudo apt-get -y update
@@ -68,7 +68,7 @@ Vagrant.configure("2") do |config|
 			vb.name = "backend"
 			end
 
-		client02.vm.provision "file", source: "backend/99-installer-config.yaml", destination: "/tmp/99-installer-config.yaml"
+		client02.vm.provision "file", source: "Vagrant/backend/99-installer-config.yaml", destination: "/tmp/99-installer-config.yaml"
 
 
 		client02.vm.provision "shell", inline: <<-SHELL
@@ -98,7 +98,7 @@ Vagrant.configure("2") do |config|
 			vb.name = "database"
 			end
 
-		client03.vm.provision "file", source: "database/99-installer-config.yaml", destination: "/tmp/99-installer-config.yaml"
+		client03.vm.provision "file", source: "Vagrant/database/99-installer-config.yaml", destination: "/tmp/99-installer-config.yaml"
 
 
 		client03.vm.provision "shell", inline: <<-SHELL

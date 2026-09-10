@@ -19,8 +19,7 @@ Vagrant.configure("2") do |config|
 			virtualbox__intnet: "intnet"
 
 		# Rede externa
-		client.vm.network "public_network",
-			bridge: "Intel(R) Ethernet Connection (17) I219-LM"
+		client.vm.network "public_network"
 
 		client.vm.provider "virtualbox" do |vb|
 			vb.gui = !is_arm

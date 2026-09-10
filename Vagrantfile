@@ -88,6 +88,28 @@ Vagrant.configure("2") do |config|
 				  || iptables -t nat -A POSTROUTING -s 10.20.30.0/24 -o "$EXT_IF" -j MASQUERADE
 			done
 
+			# Só passa da rede externa para a interna o que a rede interna indicou.
+			# O proxy do NGINX não é afetado por que sai da própria VM.
+			INT_IF=enp0s8
+
+			for EXT_IF in $(ip -o route show default | awk '{print $5}' | sort -u); do
+				# Externa -> interna: apenas respostas de conexões
+				# que a rede interna abriu
+				iptables -C FORWARD -i "$EXT_IF" -o "$INT_IF" \
+				  -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT 2>/dev/null \
+				  || iptables -A FORWARD -i "$EXT_IF" -o "$INT_IF" \
+				    -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+				# Interna -> externa: as conexões novas saem por aqui
+				iptables -C FORWARD -i "$INT_IF" -o "$EXT_IF" \
+				  -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT 2>/dev/null \
+				  || iptables -A FORWARD -i "$INT_IF" -o "$EXT_IF" \
+				    -m conntrack --ctstate NEW,ESTABLISHED,RELATED -j ACCEPT
+			done
+
+			# Tudo que não casar com as regras acima é descartado
+			iptables -P FORWARD DROP
+
 			netfilter-persistent save
 
 			# =====================================================

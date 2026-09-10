@@ -172,6 +172,14 @@ Vagrant.configure("2") do |config|
 			source: "Vagrant/database/99-installer-config.yaml",
 			destination: "/tmp/99-installer-config.yaml"
 
+		client03.vm.provision "file",
+			source: "Vagrant/database/99-lab.cnf",
+			destination: "/tmp/99-lab.cnf"
+
+		client03.vm.provision "file",
+			source: "Vagrant/database/init.sql",
+			destination: "/tmp/init.sql"
+
 		client03.vm.provision "shell", inline: <<-SHELL
 			set -e
 			export DEBIAN_FRONTEND=noninteractive
@@ -184,6 +192,29 @@ Vagrant.configure("2") do |config|
 			chmod 600 /etc/netplan/99-installer-config.yaml
 
 			netplan apply
+
+			# =====================================================
+			# MYSQL
+			# =====================================================
+			apt-get -y install mysql-server
+
+			# Faz o MySQL escutar no IP da rede interna (10.20.30.3)
+			# ao invés de apenas 127.0.0.1
+			install -m 644 /tmp/99-lab.cnf /etc/mysql/mysql.conf.d/99-lab.cnf
+
+			# Aplica o novo bind-address antes de rodar os scripts SQL
+			systemctl restart mysql
+
+			# =====================================================
+			# CARGA DO BANCO
+			# Como root do sistema, o plugin auth_socket autentica
+			# sem senha. Os dois scripts são idempotentes.
+			# =====================================================
+			mysql < /vagrant/server/schema.sql
+			mysql < /tmp/init.sql
+
+			# Faz o MySQL iniciar automaticamente
+			systemctl enable mysql
 		SHELL
 	end
 

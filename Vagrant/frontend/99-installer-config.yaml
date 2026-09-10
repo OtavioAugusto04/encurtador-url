@@ -8,4 +8,3 @@ network:
       dhcp4: no
     enp0s9:
       dhcp4: true
-      

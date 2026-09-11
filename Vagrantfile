@@ -195,8 +195,8 @@ Vagrant.configure("2") do |config|
 			destination: "/tmp/99-installer-config.yaml"
 
 		client03.vm.provision "file",
-			source: "Vagrant/database/99-lab.cnf",
-			destination: "/tmp/99-lab.cnf"
+			source: "Vagrant/database/zz-lab.cnf",
+			destination: "/tmp/zz-lab.cnf"
 
 		client03.vm.provision "file",
 			source: "Vagrant/database/init.sql",
@@ -222,7 +222,7 @@ Vagrant.configure("2") do |config|
 
 			# Faz o MySQL escutar no IP da rede interna (10.20.30.3)
 			# ao invés de apenas 127.0.0.1
-			install -m 644 /tmp/99-lab.cnf /etc/mysql/mysql.conf.d/99-lab.cnf
+			install -m 644 /tmp/zz-lab.cnf /etc/mysql/mysql.conf.d/zz-lab.cnf
 
 			# Aplica o novo bind-address antes de rodar os scripts SQL
 			systemctl restart mysql

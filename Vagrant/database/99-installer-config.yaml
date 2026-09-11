@@ -3,7 +3,11 @@ network:
   ethernets:
     enp0s3:
       dhcp4: true
+      dhcp6: false
       dhcp4-overrides:
+        use-routes: false
+        use-dns: false
+      dhcp6-overrides:
         use-routes: false
         use-dns: false
     enp0s8:

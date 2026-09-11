@@ -1,0 +1,14 @@
+[Unit]
+Description=API do encurtador de URL
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/encurtador-api
+ExecStart=/usr/bin/node index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
